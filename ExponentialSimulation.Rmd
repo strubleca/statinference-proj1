@@ -1,0 +1,215 @@
+---
+title: "Properties of Exponential Distribution Means"
+author: "Craig Struble"
+date: "November 9, 2014"
+output: pdf_document
+---
+
+# Introduction
+The exponential distribution
+is a probability distribution
+generally used
+to model the time between
+events governed
+by a Poisson process.
+The exponential distribution
+has a single parameter
+called `rate`
+and represented
+by the symbol $\lambda$,
+and its probability density function
+$f(x)$ is defined as
+$$f(x) = \lambda e^{-\lambda x}.$$
+
+In this report, the properties of sample means
+from exponential distributions are investigated
+via simulation using the R statistical programming
+language and system.
+The report begins with the code
+for creating the simulated data
+in the `Simulation` section.
+Visualizations and analysis
+of the simulations
+are presented
+in the `Results and Discussion`
+section.
+
+# Simulation
+The instructions
+for this report stated
+that exponential
+with $\lambda = 0.2$
+and sample size
+from the exponential
+of $40$.
+The number
+of simulated samples
+from our exponential
+distribution
+should be at least $1000$,
+but $10000$ was chosen
+for a better illustration.
+Variables are
+initialized with those values.
+
+```{r setup, echo=FALSE}
+# Setup report
+library(ggplot2)
+library(knitr)
+set.seed(141109)
+```
+
+```{r params}
+# Parameters for the report
+lambda <- 0.2
+sampleSize <- 40
+numDist <- 10000
+```
+
+The simulations are executed
+the requested number of times.
+The sample mean
+from each simulation is
+stored
+in a variable 
+for plotting later.
+
+```{r samplemeans}
+# Generate sample means for samples drawn from an exponential distribution
+mns <- sapply(1:numDist, function(x) mean(rexp(sampleSize, lambda)))
+```
+
+# Results and Discussion
+In the previous section,
+the sample means
+from $`r numDist`$
+samples of size $`r sampleSize`$
+from the exponential distribution
+with rate $`r lambda`$
+were generated.
+In this section,
+three properties
+of the sample mean distribution
+are presented and compared
+with theoretical expectations:
+the center of the distribution;
+the variance of the distribution;
+the normality of the distribution.
+
+## Center of Sample Mean Distribution
+The distribution
+of sample means should be
+centered around $1/\lambda = 5$,
+the population mean of the exponential distribution.
+
+The mean of the sample means
+is $`r mean(mns)`$,
+which is $`r abs(mean(mns) - 1/lambda)`$
+from the theoretical expectation.
+The following figure plots a histogram
+of the generated sample means,
+with a vertical line at the theoretical expectation
+of $`r 1/lambda`$.
+
+```{r samplemeanhist,echo=FALSE}
+
+# Plot histogram of sample means
+df <- data.frame(means=mns)
+g <- ggplot(df, aes(x=means)) + 
+    geom_histogram(binwidth=0.1, color="darkgreen", fill="white")
+g + geom_vline(xintercept=1/lambda, size=3, alpha=0.5) +
+    labs(x="Sample Means", title="Histogram of Exponential Sample Means")
+```
+
+## Variance of Sample Mean Distribution
+The expected variance of the sample mean distribution
+is $\sigma^2 / n$, where $\sigma^2$ is the variance
+of the exponential distribution and $n$ is the sample
+size of the simulated samples.
+The variance of an exponential distribution
+is $1 / \lambda^2$, which is $`r 1/lambda^2`$
+for a rate of `r lambda`.
+
+Filling in the actual values
+in our simulations,
+the expected variance is $`r (1/lambda^2) / sampleSize`$.
+The observed variance of the sample mean distribution is $`r var(mns)`$.
+The absolute difference
+in observed versus expected variance
+is $`r abs(var(mns) - ((1/lambda^2) / sampleSize))`$. 
+
+## The Sample Mean Distribution is Approximately Normal
+According to theoretical expectations,
+the distribution
+of sample means
+from any distribution
+should be
+well approximated by a normal distribution.
+The theoretical normal distribution
+for the sample mean distribution
+is
+$$\bar{X}_{n} \sim N(\mu, \sigma^2/n).$$
+Substituting in for our simulations,
+the sample means should be approximated
+by
+$$\bar{X}_{40} \sim N(5, 25/40).$$
+
+To begin this section,
+a figure is presented
+to show that the distribution
+of $`r numDist`$ exponentially distributed
+values does not match
+our expectation of a normal
+distribution, but
+that its sample mean
+does fall within the theoretical normal.
+The red curve shows the theoretical normal
+density curve
+and the gray line shows the sample mean
+for the exponentially distributed
+random values.
+
+```{r expnotnormal, echo=FALSE, fig.height=4}
+
+# Plot random values from an exponential distribution
+df <- data.frame(val=rexp(numDist, lambda))
+g <- ggplot(df, aes(x=val)) + 
+    geom_histogram(aes(y=..density..), binwidth=0.5, color="darkgreen", fill="white")
+g + labs(x="Value from Exponential", 
+         title="Histogram of Exponential Random Values") +
+  stat_function(fun=dnorm, 
+                args=list(mean=1/lambda, sd=1/(lambda*sqrt(sampleSize))), 
+                color="red", size=3, alpha=0.5) +
+    geom_vline(xintercept=mean(df$val), size=3, alpha=0.5)
+```
+
+The next figure shows that the distribution 
+of sample means
+closely follows the theoretical normal distribution.
+The theoretical normal distribution
+is shown again as a red curve.
+The mean of sample means,
+shown as a gray line,
+is near the peak
+of the theoretical normal distribution.
+
+```{r samplemeansnormal, echo=FALSE, fig.height=4}
+
+# Plot density of sample means and compare to theoretical normal
+df <- data.frame(means=mns)
+g <- ggplot(df, aes(x=means)) + 
+    geom_histogram(aes(y=..density..), binwidth=0.1, color="darkgreen", 
+                   fill="white")
+g + geom_vline(xintercept=1/lambda, size=3, alpha=0.5) +
+    labs(x="Sample Means", title="Histogram of Exponential Sample Means") +
+    stat_function(fun=dnorm, 
+                  args=list(mean=1/lambda, sd=1/(lambda*sqrt(sampleSize))), 
+                  color="red", size=3, alpha=0.5) +
+    geom_vline(xintercept=mean(mns), size=3, alpha=0.5)
+```
+
+# Appendix: Full Code
+This appendix contains the full code listing for this report.
+
+```{r, ref.label=all_labels(), echo=TRUE, eval=FALSE}
+```
