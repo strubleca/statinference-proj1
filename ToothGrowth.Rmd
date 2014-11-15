@@ -34,7 +34,7 @@ if vitamin C
 has an impact
 on tooth growth.
 
-```{r startup}
+```{r startup, echo=FALSE}
 library(ggplot2)
 library(knitr)
 ```
