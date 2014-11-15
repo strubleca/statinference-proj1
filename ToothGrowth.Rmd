@@ -35,8 +35,10 @@ has an impact
 on tooth growth.
 
 ```{r startup, echo=FALSE}
+# Intial setup, load necessary packages.
 library(ggplot2)
 library(knitr)
+
 ```
 
 # Exploratory Analysis and Summary
@@ -48,6 +50,7 @@ and data
 are loaded.
 
 ```{r setup}
+# Load the data
 library(datasets)
 data(ToothGrowth)
 ```
@@ -66,6 +69,7 @@ The `dose` column is numeric
 containing the three dose levels: 0.5, 1, and 2 mg.
 
 ```{r summary}
+# Summarize the data
 str(ToothGrowth)
 summary(ToothGrowth)
 ```
@@ -78,6 +82,8 @@ to the data is provided
 in the plot.
 
 ```{r exploratoryplot, echo=FALSE}
+
+# Plot the tooth length by dose, grouped by supplement
 g <- ggplot(ToothGrowth, aes(x=dose, y=len, colour=supp))
 g + geom_point() + geom_smooth(method=lm) +
     labs(x="Dose (mg)", y="Tooth Length (units unknown)", title="ToothGrowth Data Set") +
@@ -85,6 +91,10 @@ g + geom_point() + geom_smooth(method=lm) +
 ```
 
 # Comparison of Delivery Method and Dosage
+
+## Comparison of Delivery Methods
+
+## Comparison of Dosages
 
 # Conclusions
 
