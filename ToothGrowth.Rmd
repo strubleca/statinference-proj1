@@ -1,5 +1,5 @@
 ---
-title: "An Analysis of the ToothGrowth Data Set in R"
+title: "More Vitamin C Increases Guinea Pig Tooth Growth: An Analysis in R"
 author: "Craig Struble"
 date: "November 14, 2014"
 output:
@@ -9,30 +9,36 @@ output:
 ---
 
 # Introduction
-Data
-on the effect
-of vitamin C
-on tooth growth
-is available
-in R
-as the ToothGrowth data set.
-The study
-looked
-at three different
-doses
-of vitamin C
-with two delivery methods
-and measured
-the length
-of teeth
-in 10 guinea pigs.
 In this report,
-the delivery methods
+delivery methods
 and doses are compared
 to determine
 if vitamin C
 has an impact
+on tooth growth
+using the `ToothGrowth`
+data in R.
+The original study
+looked
+at three doses
+with two delivery methods.
+Tooth length
+was measured
+in 60 guinea pigs,
+10 at each combination 
+of treatments.
+The analysis herein shows
+that
+vitamin C dose amounts have a significant impact
 on tooth growth.
+Delivery methods have a significant impact
+at lower dose levels, but not at higher doses.
+
+The report has three main sections.
+The first explores and summarizes the data.
+The second performs hypothesis testing on variables
+to identify significant influences on tooth growth.
+The third draws conclusions from the testing performed in the report.
 
 ```{r startup, echo=FALSE}
 # Intial setup, load necessary packages.
@@ -67,6 +73,10 @@ representing orange juice
 and ascorbic acid respectively.
 The `dose` column is numeric
 containing the three dose levels: 0.5, 1, and 2 mg.
+A plot comparing
+tooth length by dose,
+grouped by supplement type,
+follows the summary tables.
 
 ```{r summary}
 # Summarize the data
@@ -74,14 +84,7 @@ str(ToothGrowth)
 summary(ToothGrowth)
 ```
 
-The data is plotted comparing
-tooth length by dose,
-grouped by supplement type.
-A linear fit
-to the data is provided
-in the plot.
-
-```{r exploratoryplot, echo=FALSE}
+```{r exploratoryplot, echo=FALSE, fig.width=6, fig.height=3, fig.cap="The tooth length plotted against dosage amount. Different supplement types are plotted by color. Linear fits with confidence intervals are plotted for each group. A strong association between dosage amount and tooth length appears to exist for both supplement types."}
 
 # Plot the tooth length by dose, grouped by supplement
 g <- ggplot(ToothGrowth, aes(x=dose, y=len, colour=supp))
@@ -92,11 +95,137 @@ g + geom_point() + geom_smooth(method=lm) +
 
 # Comparison of Delivery Method and Dosage
 
-## Comparison of Delivery Methods
+The `ToothGrowth` data set has two variables
+of interest: the supplement type `supp`,
+and the dosage amount `dose`.
+In Figure 1,
+two relationships appear to exist.
+The first is that increased dose amounts
+correspond to increased tooth length.
+The second is that orange juice
+may be a better supplement
+for delivering vitamin C
+than ascorbic acid.
+Each is investigated
+using statistical methods
+to determine if there is a likely
+relationship.
+
+An important aspect
+of the data
+is that there are 60 distinct
+guinea pigs, 10 at each combination
+of variables 
+(see original data source
+Crampton, The Journal of Nutrition, vol. 33, issue 5, May 1947, pp. 491-504).
+Hence, paired analyses
+are not appropriate
+and are not be used.
+
+The p-value
+threshold
+for significance is assumed
+to be less than 0.05.
 
 ## Comparison of Dosages
 
+To compare dosages,
+T tests are executed
+for each pair of dosage
+levels.
+Equal variance in the groups is assumed.
+
+```{r ttestdoseallpairs}
+# All pair T tests for doses
+t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(0.5, 1.0)), var.equal=T)
+t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(0.5, 2.0)), var.equal=T)
+t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(1.0, 2.0)), var.equal=T)
+```
+
+In each case,
+the null hypothesis
+that the means are equal
+is rejected at $p < 0.05$.
+Since $3$ tests were considered, 
+a Bonferroni correction is made
+for multiple testing.
+The corrected
+level of significance
+is $0.05/3 = 0.017$.
+All tests remain significant
+with $p < 0.017$,
+suggesting that dose amounts
+change tooth length.
+
+## Comparison of Delivery Methods
+
+To compare delivery methods,
+initially a T test
+of all the data is performed.
+Equal variance in the groups
+is assumed.
+
+```{r ttestalldelivery}
+# T test for delivery, ignoring doses. Assigned to variable for inline reference
+tst <- t.test(len ~ supp, data=ToothGrowth, var.equal=T)
+tst
+```
+
+The p-value of `r tst$p.value` does not reach the level
+of significance of 0.05 
+to reject the null hypothesis that the means are equal.
+
+Figure 1 does suggest some difference
+in delivery methods at each dose level.
+T tests are performed
+for the delivery methods
+at each dose level individually.
+
+```{r ttestdeliverydose}
+# T tests for delivery methods, at each dosage level.
+t.test(len ~ supp, data=subset(ToothGrowth, dose == 0.5), var.equal=T)
+t.test(len ~ supp, data=subset(ToothGrowth, dose == 1.0), var.equal=T)
+t.test(len ~ supp, data=subset(ToothGrowth, dose == 2.0), var.equal=T)
+```
+
+A total
+of 4 tests were performed
+to evaluate significance,
+so a Bonferroni correction
+of $0.05/4=0.0125$
+is used as the level
+of significance needed
+to reject the null hypothesis.
+
+For the doses 0.5 mg and 1.0 mg,
+the null hypothesis of equal means
+is rejected,
+suggesting that the vitamin C supplement type
+is an important factor in tooth length.
+For 2.0 mg,
+the null hypothesis cannot be rejected,
+and indeed the means appear to be close 
+in the groups.
+
 # Conclusions
+
+Using T tests
+with equal variance,
+tooth length
+increases
+with increased
+vitamin C doses
+($p < 0.017$, Bonferroni corrected).
+
+T tests with equal variance
+were also used
+to compare vitamin C delivery methods.
+Orange juice appears
+to be a more effective delivery method
+than ascorbic acid
+for lower doses (0.5 mg and 1.0 mg, $p < 0.0125$, Bonferroni corrected).
+No significant difference between delivery methods was seen
+at the highest dose, 2.0 mg.
 
 # Appendix: Full Code
 This appendix contains the full code listing for this report.
