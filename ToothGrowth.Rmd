@@ -120,7 +120,7 @@ of variables
 Crampton, The Journal of Nutrition, vol. 33, issue 5, May 1947, pp. 491-504).
 Hence, paired analyses
 are not appropriate
-and are not be used.
+and are not used.
 
 The p-value
 threshold
