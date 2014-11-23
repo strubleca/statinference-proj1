@@ -34,11 +34,11 @@ on tooth growth.
 Delivery methods have a significant impact
 at lower dose levels, but not at higher doses.
 
-The report has three main sections.
-The first explores and summarizes the data.
-The second performs hypothesis testing on variables
+The report has three additional sections.
+Section 2 explores and summarizes the data.
+Section 3 performs hypothesis testing on variables
 to identify significant influences on tooth growth.
-The third draws conclusions from the testing performed in the report.
+Section 4 draws conclusions from the testing performed in the report.
 
 ```{r startup, echo=FALSE}
 # Intial setup, load necessary packages.
@@ -61,7 +61,7 @@ library(datasets)
 data(ToothGrowth)
 ```
 
-The data consists
+The data consist
 of `r nrow(ToothGrowth)` rows
 and `r ncol(ToothGrowth)` columns.
 The `len` column contains the tooth lengths.
@@ -133,13 +133,16 @@ To compare dosages,
 T tests are executed
 for each pair of dosage
 levels.
-Equal variance in the groups is assumed.
+It is unknown whether
+vitamin C dose affects
+tooth length variance,
+so unequal variances are assumed.
 
 ```{r ttestdoseallpairs}
 # All pair T tests for doses
-t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(0.5, 1.0)), var.equal=T)
-t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(0.5, 2.0)), var.equal=T)
-t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(1.0, 2.0)), var.equal=T)
+t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(0.5, 1.0)))
+t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(0.5, 2.0)))
+t.test(len ~ dose, data=subset(ToothGrowth, dose %in% c(1.0, 2.0)))
 ```
 
 In each case,
@@ -162,12 +165,14 @@ change tooth length.
 To compare delivery methods,
 initially a T test
 of all the data is performed.
-Equal variance in the groups
-is assumed.
+It is unknown whether
+vitamin C delivery method affects
+tooth length variance,
+so unequal variances are assumed.
 
 ```{r ttestalldelivery}
 # T test for delivery, ignoring doses. Assigned to variable for inline reference
-tst <- t.test(len ~ supp, data=ToothGrowth, var.equal=T)
+tst <- t.test(len ~ supp, data=ToothGrowth)
 tst
 ```
 
@@ -183,9 +188,9 @@ at each dose level individually.
 
 ```{r ttestdeliverydose}
 # T tests for delivery methods, at each dosage level.
-t.test(len ~ supp, data=subset(ToothGrowth, dose == 0.5), var.equal=T)
-t.test(len ~ supp, data=subset(ToothGrowth, dose == 1.0), var.equal=T)
-t.test(len ~ supp, data=subset(ToothGrowth, dose == 2.0), var.equal=T)
+t.test(len ~ supp, data=subset(ToothGrowth, dose == 0.5))
+t.test(len ~ supp, data=subset(ToothGrowth, dose == 1.0))
+t.test(len ~ supp, data=subset(ToothGrowth, dose == 2.0))
 ```
 
 A total
@@ -208,16 +213,25 @@ and indeed the means appear to be close
 in the groups.
 
 # Conclusions
+In the analysis,
+the following assumptions were made:
+the samples are not paired;
+the samples have unequal variance
+since test conditions could change variance;
+and
+the threshold
+for significance is 0.05 before multiple test corrections.
 
-Using T tests
-with equal variance,
+
+
+Using T tests,
 tooth length
 increases
 with increased
 vitamin C doses
 ($p < 0.017$, Bonferroni corrected).
 
-T tests with equal variance
+T tests
 were also used
 to compare vitamin C delivery methods.
 Orange juice appears
